@@ -229,7 +229,7 @@ async function TestRemovingAllLinks() {
     let webpart = JSON.parse(JSON.stringify(defaultToolsApps));
     webpart.webPartData.properties.isUserTileCustomizationAllowed = true;
     webpart.webPartData.properties.layout = "tabbed";
-    await SetupWebpartLocal(WebpartMaker.makeWebPart, webpart);
+     SetupWebpartLocal(WebpartMaker.makeWebPart, webpart);
     let bigContainer = await (driver.findElement(By.css("div[class^='wsbThings']")));
 
     let buttonsContainer = await (bigContainer.findElement(By.css("div[class^='toolsAppsFlexContainer']")));
@@ -279,12 +279,14 @@ async function SetupWebpartLocal(creationScript: (any) => void, args: any) {
     await (driver.get("https://localhost:4230/temp/workbench.html"));
 
     
-    await (timeout(standardWait));
-    // await (driver.executeScript(creationScript, args));
+    await(timeout(standardWait));
+    // await(driver.executeScript(creationScript, args));
     
-    driver.findElement(By.xpath('//*[@id="workbenchPageContent"]/div/div/div/div/div/div[2]/div/div/div[1]/div/div[1]/button/div/div/i')).click();
+    await(driver.findElement(By.xpath('//*[@id="workbenchPageContent"]/div/div/div/div/div/div[2]/div/div/div[1]/div/div[1]/button/div/div/i')).click());
+    alert("should be open");
     wait(1000);
-    driver.findElement(By.xpath('//*[@id="toolbox-callout-2"]/div/div[2]/div/section[2]/div/button/div/div')).click();
+    await(driver.findElement(By.xpath('//*[@id="toolbox-callout-1"]/div/div[2]/div/section[2]/div/button/div/div/i')).click());
+    alert('should be shown');
     wait(1000);
 }
 
