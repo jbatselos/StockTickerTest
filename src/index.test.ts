@@ -36,6 +36,7 @@ it('waits for the driver to start', () => {
 
 it('can set up a webpart', async () => { await TestWebpartSetup() })
 it('edits fields in alerts', async () => { await TestFieldEditing() })
+/*
 it('tests alerts default rendering', async () => { await TestDefaultRendering() })
 it('tests alerts Juliet rendering', async () => { await TestJulietRendering() })
 it('tests alerts Chicago rendering', async () => { await TestChicagoRendering() })
@@ -47,14 +48,15 @@ it('renders list view mode', async () => { await TestListMode() })
 it('renders tabbed layout', async () => { await TestTabbedLayout() })
 it('doesn\'t break when removing all tiles from the tabbed layout', async () => { await TestRemovingAllLinks() })
 it('warns about illegal profile properties', async () => { await TestIllegalProfileProperty() })
+*/
 it('closes the driver', async () => { await driver.close() })
 
 async function TestWebpartSetup() {
     let webpart = JSON.parse(JSON.stringify(defaultAlerts));
     await SetupWebpartLocal(WebpartMaker.makeWebPart, webpart);
 
-    var element = await (driver.findElement(By.xpath('//*[@id="spPageCanvasContent"]/div/div/div/div[2]/div/div/div/div/div[1]/div/div[1]/div/div/div[1]/div/div')));
-    //var attrib = await (element.getAttribute("class"));
+    var element = await (driver.findElement(By.xpath('//*[@id="workbenchPageContent"]/div/div/div/div/div/div[2]/div/div/div[1]/div/div[1]/div/div/div[2]/div/div/div[1]/button')));
+    var attrib = await (element.getAttribute("class"));
 
     expect(element).not.toBeNull;
 }
@@ -64,22 +66,21 @@ async function TestFieldEditing() {
     let webpart = JSON.parse(JSON.stringify(defaultAlerts));
     await SetupWebpartLocal(WebpartMaker.makeWebPart, webpart);
 
-    let interactionArea: WebElement[] = await driver.findElements(By.css("div[class^='alerts'] textarea"))
-    await interactionArea[0].sendKeys(Key.chord(Key.CONTROL, 'a'), "here's a new test title");
-    await interactionArea[1].sendKeys(Key.chord(Key.CONTROL, 'a'), "and some new button text");
-    await interactionArea[2].sendKeys(Key.chord(Key.CONTROL, 'a'), "http://www.anewlink.com");
-    await (timeout(standardWait));
-    //We do this bc for some reason the dom isn't updated when you type in this webpart (even in a nomral browser) idk why. it's weird man.
-    await (driver.navigate().refresh());
-    await (timeout(standardWait));
-    interactionArea = await driver.findElements(By.css("div[class^='alerts'] textarea"))
-    expect(await interactionArea[0].getText()).toBe("here's a new test title");
-    expect(await interactionArea[1].getText()).toBe("and some new button text");
-    expect(await interactionArea[2].getText()).toBe("http://www.anewlink.com");
+    await (driver.findElement(By.xpath('//*[@id="workbenchPageContent"]/div/div/div/div/div/div[2]/div/div/div[1]/div/div[1]/div/div/div[2]/div/div/div[1]/button'))).click();
+    
+    wait(500);
+    var symbolBox = await driver.findElement(By.tagName("input"));
+    wait(500);
+    await symbolBox.sendKeys(Key.BACK_SPACE,Key.BACK_SPACE,Key.BACK_SPACE,Key.BACK_SPACE);
+    await symbolBox.sendKeys("MSFT");
+    await driver.findElement(By.xpath('//*[@id="spPropertyPaneContainer"]/div/div/div[2]/div/div[1]/div/button/i')).click();
+    wait(500);
+    expect(await driver.findElement(By.className("title_43416a1f")).getText()).toBe("Microsoft Corporation ( MSFT )");
 
     takeScreenShot("AlertsFieldEditing");
+    await RemoveWebpart();
 }
-
+/*
 async function TestDefaultRendering() {
     let webpart = JSON.parse(JSON.stringify(defaultAlerts));
     await SetupWebpartLocal(WebpartMaker.makeWebPart, webpart);
@@ -147,7 +148,7 @@ async function TestTADefaultMode() {
     let buttons = await (driver.findElements(By.css("div[class^='toolsAppsFlexContainer'] > a")));
     let button = buttons[0];
     expect(await button.getAttribute("href")).toBe("https://wsj.com/");
-    expect(await button.getAttribute("class")).toMatch(/tile_.*/);
+    expect(await button.getAttribute("class")).toMatch(/tile_.);
     expect(await button.findElement(By.css("h1")).getText()).toBe("Wallstreet Journal");
     expect(await button.findElement(By.css("img")).getAttribute("src")).toBe("https://camo.githubusercontent.com/3288d22efd14f228d106509b2b1e0d7ca28ce4e9/687474703a2f2f73666572696b2e6769746875622e696f2f77736a2f69636f6e2e706e67");
     takeScreenShot("ToolsAppsDefault");
@@ -195,7 +196,7 @@ async function TestListMode() {
     let buttons = await (driver.findElements(By.css("div[class^='toolsAppsFlexContainer'] > a")));
     let button = buttons[0];
     expect(await button.getAttribute("href")).toBe("https://wsj.com/");
-    expect(await button.getAttribute("class")).toMatch(/list_.*/);
+    expect(await button.getAttribute("class")).toMatch(/list_.);
     expect(await button.findElement(By.css("h1")).getText()).toBe("Wallstreet Journal");
     expect(await button.findElement(By.css("img")).getAttribute("src")).toBe("https://camo.githubusercontent.com/3288d22efd14f228d106509b2b1e0d7ca28ce4e9/687474703a2f2f73666572696b2e6769746875622e696f2f77736a2f69636f6e2e706e67");
     takeScreenShot("ToolsAppsListMode");
@@ -210,7 +211,7 @@ async function TestTabbedLayout() {
 
     let button = await (bigContainer.findElement(By.css("div[class^='toolsAppsFlexContainer'] > a")));
     expect(await button.getAttribute("href")).toBe("https://wsj.com/");
-    expect(await button.getAttribute("class")).toMatch(/tile_.*/);
+    expect(await button.getAttribute("class")).toMatch(/tile_.);
     expect(await button.findElement(By.css("h1")).getText()).toBe("Wallstreet Journal");
     expect(await button.findElement(By.css("img")).getAttribute("src")).toBe("https://camo.githubusercontent.com/3288d22efd14f228d106509b2b1e0d7ca28ce4e9/687474703a2f2f73666572696b2e6769746875622e696f2f77736a2f69636f6e2e706e67");
 
@@ -219,7 +220,7 @@ async function TestTabbedLayout() {
 
     button = await (bigContainer.findElement(By.css("div[class^='toolsAppsFlexContainer'] > a")));
     expect(await button.getAttribute("href")).toBe("https://cnn.com/");
-    expect(await button.getAttribute("class")).toMatch(/tile_.*/);
+    expect(await button.getAttribute("class")).toMatch(/tile_.);
     expect(await button.findElement(By.css("h1")).getText()).toBe("CNN");
     expect(await button.findElement(By.css("img")).getAttribute("src")).toBe("http://media.idownloadblog.com/wp-content/uploads/2014/09/cnn-icon.png");
     takeScreenShot("ToolsAppsTabbed");
@@ -272,7 +273,7 @@ async function TestIllegalProfileProperty() {
 }
 
 
-
+*/
 
 
 async function SetupWebpartLocal(creationScript: (any) => void, args: any) {
@@ -283,13 +284,17 @@ async function SetupWebpartLocal(creationScript: (any) => void, args: any) {
     // await(driver.executeScript(creationScript, args));
     
     await(driver.findElement(By.xpath('//*[@id="workbenchPageContent"]/div/div/div/div/div/div[2]/div/div/div[1]/div/div[1]/button/div/div/i')).click());
-    alert("should be open");
+    
     wait(1000);
     await(driver.findElement(By.xpath('//*[@id="toolbox-callout-1"]/div/div[2]/div/section[2]/div/button/div/div/i')).click());
-    alert('should be shown');
+    
     wait(1000);
 }
 
+async function RemoveWebpart(){
+    await driver.findElement(By.xpath('//*[@id="workbenchPageContent"]/div/div/div/div/div/div[2]/div/div/div[1]/div/div[1]/div/div/div[2]/div/div/div[3]/button/i')).click();
+    await driver.findElement(By.xpath('/html/body/div[3]/div/div/div/div[2]/div/div[2]/div[2]/div/span[1]/button/div/div')).click();
+}
 function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
